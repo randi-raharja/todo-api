@@ -139,6 +139,18 @@ export const AuthService = new Elysia({ prefix: "auth" })
                 deviceId = newDevices.id;
             }
 
+            const checkDeviceId = await db
+                .select()
+                .from(sessions)
+                .where(eq(sessions.deviceId, deviceId))
+                .limit(1);
+
+            if (checkDeviceId.length > 0) {
+                await db
+                    .delete(sessions)
+                    .where(eq(sessions.deviceId, deviceId));
+            }
+
             const sessionId = uuidV4();
             const expiredAt = new Date();
             expiredAt.setDate(expiredAt.getDate() + 7);
